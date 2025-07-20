@@ -13,6 +13,8 @@ Right now for the sake of simplicity I have kept secrets in values.yaml file to 
 2. Remove secrets form values-ENV.yaml file 
 3. I have used github actions for image building and storing images on docker hub (CI) and using argocd for CD to deploy.
 4. Updating the values.yaml when new image is created https://github.com/devd-s/babbel-task/blob/main/url-shortener-helm/values-dev.yaml, it will update the  the image on manifests and argocd will deploy that image.
+5. To install argocd kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+6. Command to create helm chart ´helm create url-shortener´
 
 # Another way
 The application code can also be deployed on lambda + api gateway and rules can be added to api gateway and whitelisting/blacklisting can added on api gateway using certain rules.
