@@ -72,12 +72,13 @@ jobs:
           path: gitops
 
       - name: Update K8s manifest in GitOps repo
+        if: steps.detect-env.outputs.env != ''
         run: |
           cd gitops
           git config user.name "GitHub Bot"
           git config user.email "bot@github.com"
 
-          MANIFEST_FILE="k8s/babbel-task-${ENV}.yaml"
+          MANIFEST_FILE="url-shortener-helm/values-${ENV}.yaml"
 
           echo "Patching $MANIFEST_FILE with image $IMAGE_NAME:$TAG"
           sed -i "s|^[[:space:]]*image: .*|          image: $IMAGE_NAME:$TAG|" $MANIFEST_FILE
