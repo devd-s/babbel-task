@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "url-shortener-helm.fullname" . }}-config
+  labels:
+    {{- include "url-shortener-helm.labels" . | nindent 4 }}
+data:
+  {{- range $key, $value := .Values.env }}
+  {{- if and (ne $key "AUTH_USER") (ne $key "AUTH_PASSWORD") }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  {{- end }}

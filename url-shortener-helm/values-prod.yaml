@@ -1,0 +1,16 @@
+# values-prod.yaml
+env:
+  ENVIRONMENT: prod
+
+# Enable external secrets for production
+externalSecrets:
+  enabled: true
+  secretStoreName: "aws-parameter-store"
+  awsRegion: "us-west-2"
+  authUserKey: "/url-shortener/prod/auth/user"
+  authPasswordKey: "/url-shortener/prod/auth/password"
+  dbUrl: "/url-shortener/prod/db/url"
+
+# Disable local env secret for prod (use external secrets instead)
+envSecret:
+  enabled: false

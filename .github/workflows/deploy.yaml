@@ -1,0 +1,73 @@
+name: Build & Deploy Based on Changed Values File
+
+on:
+  push:
+    paths:
+      - 'url_shortener_go/**'
+      - 'url-shortener-helm/values-*.yaml'
+      - '.github/**'
+
+env:
+  IMAGE_NAME: devd/babbel-task
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout app code
+        uses: actions/checkout@v3
+
+      - name: Detect environment from changed values file
+        id: detect-env
+        run: |
+          echo "Detecting environment..."
+          FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }})
+          echo "Changed files:"
+          echo "$FILES"
+
+          ENV=""
+          if echo "$FILES" | grep -q 'values-dev.yaml'; then
+            ENV="dev"
+          elif echo "$FILES" | grep -q 'values-staging.yaml'; then
+            ENV="staging"
+          elif echo "$FILES" | grep -q 'values-prod.yaml'; then
+            ENV="prod"
+          else
+            echo "No known values file changed. Skipping deploy."
+            exit 0
+          fi
+
+          echo "ENV=$ENV" >> $GITHUB_ENV
+          echo "TAG=${ENV}-$(date +%s)" >> $GITHUB_ENV
+          echo "env=$ENV" >> $GITHUB_OUTPUT
+
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Build and push Docker image
+        run: |
+          docker build -t $IMAGE_NAME:$TAG .
+          docker push $IMAGE_NAME:$TAG
+
+      - name: Checkout GitOps repo
+        uses: actions/checkout@v3
+        with:
+          repository: devd-s/babbel-task
+          token: ${{ secrets.babbel }}
+          path: gitops
+
+      - name: Update K8s manifest in GitOps repo
+        run: |
+          cd gitops
+          git config user.name "GitHub Bot"
+          git config user.email "bot@github.com"
+
+          MANIFEST_FILE="k8s/babbel-task-${ENV}.yaml"
+
+          echo "Patching $MANIFEST_FILE with image $IMAGE_NAME:$TAG"
+          sed -i "s|^[[:space:]]*image: .*|          image: $IMAGE_NAME:$TAG|" $MANIFEST_FILE
+
+          git add $MANIFEST_FILE
+          git diff --cached --quiet && echo "No changes to commit" || git commit -m "Update $ENV image to $TAG"
+          git push origin main

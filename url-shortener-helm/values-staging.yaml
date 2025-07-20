@@ -1,0 +1,7 @@
+# values-staging.yaml
+env:
+  ENVIRONMENT: staging
+  DB_URL: "XXXX" # This can be updated from AWS parameter store in Prod setup
+  AUTH_USER: "staginguser" # This will be fetched AWS secrets manager in Prod setup as it requires installation of https://external-secrets.io/latest/provider/aws-secrets-manager/
+  AUTH_PASSWORD: "stagingpass" # This will be fetched AWS secrets manager in Prod setup as it requires installation of https://external-secrets.io/latest/provider/aws-secrets-manager/
+

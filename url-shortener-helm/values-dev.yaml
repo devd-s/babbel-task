@@ -1,0 +1,7 @@
+# values-dev.yaml
+env:
+  ENVIRONMENT: dev
+  DB_FILE: "/app/urls-dev.db"
+  AUTH_USER: "devuser"
+  AUTH_PASSWORD: "devpass"
+
