@@ -6,7 +6,7 @@ image:
 
 env:
   ENVIRONMENT: dev
-  DB_FILE: "/app/urls-dev.db"
+  DB_FILE: "/app/urls-dev.db" # This is not prod so keeping the state locally as this can be changed for prod
   AUTH_USER: "devuser"
   AUTH_PASSWORD: "devpass"
 
