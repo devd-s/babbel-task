@@ -2,6 +2,11 @@
 env:
   ENVIRONMENT: prod
 
+image:
+  repository: devd/babbel-task:prod-latest
+  # tag: dev-latest  # will be replaced by GitHub Actions
+  pullPolicy: IfNotPresent
+
 # Enable external secrets for production
 externalSecrets:
   enabled: true

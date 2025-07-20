@@ -5,3 +5,7 @@ env:
   AUTH_USER: "staginguser" # This will be fetched AWS secrets manager in Prod setup as it requires installation of https://external-secrets.io/latest/provider/aws-secrets-manager/
   AUTH_PASSWORD: "stagingpass" # This will be fetched AWS secrets manager in Prod setup as it requires installation of https://external-secrets.io/latest/provider/aws-secrets-manager/
 
+image:
+  repository: devd/babbel-task:stg-latest
+  # tag: dev-latest  # will be replaced by GitHub Actions
+  pullPolicy: IfNotPresent
