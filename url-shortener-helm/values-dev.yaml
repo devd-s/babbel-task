@@ -1,7 +1,7 @@
 # values-dev.yaml
 image:
-  repository: devd/babbel-task
-  tag: dev-latest  # will be replaced by GitHub Actions
+  repository: devd/babbel-task:dev-latest
+  # tag: dev-latest  # will be replaced by GitHub Actions
   pullPolicy: IfNotPresent
 
 env:
