@@ -1,4 +1,9 @@
 # values-dev.yaml
+image:
+  repository: devd/babbel-task
+  tag: dev-latest  # will be replaced by GitHub Actions
+  pullPolicy: IfNotPresent
+
 env:
   ENVIRONMENT: dev
   DB_FILE: "/app/urls-dev.db"

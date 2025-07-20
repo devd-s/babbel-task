@@ -6,7 +6,7 @@ replicaCount: 1
 
 image:
   repository: devd/babbel-task
-  pullPolicy: Always # This can be changed to IfNotPresent
+  pullPolicy: IfNotPresent # This can be changed to IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
 
