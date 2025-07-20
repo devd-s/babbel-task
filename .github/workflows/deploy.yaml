@@ -20,9 +20,20 @@ jobs:
 
       - name: Detect environment from changed values file
         id: detect-env
+        shell: bash
         run: |
           echo "Detecting environment..."
-          FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }})
+
+          BEFORE="${{ github.event.before }}"
+          AFTER="${{ github.event.after }}"
+
+          if [[ "$BEFORE" == "0000000000000000000000000000000000000000" || -z "$BEFORE" ]]; then
+            echo "First commit or unknown base. Using all files."
+            FILES=$(git ls-files)
+          else
+            FILES=$(git diff --name-only "$BEFORE" "$AFTER")
+          fi
+
           echo "Changed files:"
           echo "$FILES"
 
