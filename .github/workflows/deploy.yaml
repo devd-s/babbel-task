@@ -17,6 +17,8 @@ jobs:
     steps:
       - name: Checkout app code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # to pull commit history
 
       - name: Detect environment from changed values file
         id: detect-env
