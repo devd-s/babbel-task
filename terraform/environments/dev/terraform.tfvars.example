@@ -1,0 +1,33 @@
+# AWS Configuration
+aws_region = "us-west-2"
+environment = "dev"
+project_name = "url-shortener"
+
+# VPC Configuration
+vpc_cidr = "10.0.0.0/16"
+
+# EKS Configuration
+kubernetes_version = "1.28"
+eks_endpoint_public_access = true
+eks_public_access_cidrs = ["0.0.0.0/0"]  # Can be Restricted to preferred IP ranges
+
+# EKS Node Group Configuration with Multiple instance types for better availability and more options in case instance ran out in a region
+eks_node_instance_types = ["t3.medium", "t3.large", "t3a.medium", "t3a.large"]
+eks_node_desired_size = 2
+eks_node_max_size = 4
+eks_node_min_size = 1
+eks_node_disk_size = 50
+eks_capacity_type = "ON_DEMAND"  #  "SPOT" ca be used for cost savings
+
+# ALB Configuration
+certificate_arn = "arn:aws:acm:us-west-2:123456789012:certificate/12345678-1234-1234-1234-123456789012"
+domain_names = ["dev.yourdomain.com"]
+alb_deletion_protection = false
+waf_rate_limit = 2000
+
+# CloudFront IP ranges are already defined in variables.tf to allow traffic from them to ALB
+# These IPs are automatically updated and whitelisted in the ALB security groups
+
+# CloudWatch Configuration
+log_retention_days = 30
+alert_email_addresses = ["devops@yourdomain.com", "alerts@yourdomain.com"]

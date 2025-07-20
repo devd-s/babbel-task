@@ -1,0 +1,159 @@
+# CloudWatch Agent Configuration for EKS https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/install-CloudWatch-Observability-EKS-addon.html
+# https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Container-Insights-setup-metrics.html
+# This can be deployed as a DaemonSet in your EKS cluster
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cwagentconfig
+  namespace: amazon-cloudwatch
+data:
+  cwagentconfig.json: |
+    {
+      "logs": {
+        "metrics_collected": {
+          "kubernetes": {
+            "cluster_name": "${cluster_name}",
+            "metrics_collection_interval": 60
+          }
+        },
+        "force_flush_interval": 15
+      },
+      "metrics": {
+        "namespace": "CWAgent",
+        "metrics_collected": {
+          "cpu": {
+            "measurement": [
+              "cpu_usage_idle",
+              "cpu_usage_iowait",
+              "cpu_usage_user",
+              "cpu_usage_system"
+            ],
+            "metrics_collection_interval": 60
+          },
+          "disk": {
+            "measurement": [
+              "used_percent"
+            ],
+            "metrics_collection_interval": 60,
+            "resources": [
+              "*"
+            ]
+          },
+          "diskio": {
+            "measurement": [
+              "io_time",
+              "read_bytes",
+              "write_bytes",
+              "reads",
+              "writes"
+            ],
+            "metrics_collection_interval": 60,
+            "resources": [
+              "*"
+            ]
+          },
+          "mem": {
+            "measurement": [
+              "mem_used_percent"
+            ],
+            "metrics_collection_interval": 60
+          },
+          "netstat": {
+            "measurement": [
+              "tcp_established",
+              "tcp_time_wait"
+            ],
+            "metrics_collection_interval": 60
+          },
+          "swap": {
+            "measurement": [
+              "swap_used_percent"
+            ],
+            "metrics_collection_interval": 60
+          }
+        }
+      }
+    }
+
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: cloudwatch-agent
+  namespace: amazon-cloudwatch
+spec:
+  selector:
+    matchLabels:
+      name: cloudwatch-agent
+  template:
+    metadata:
+      labels:
+        name: cloudwatch-agent
+    spec:
+      containers:
+        - name: cloudwatch-agent
+          image: amazon/cloudwatch-agent:1.247358.0b251814
+          ports:
+            - containerPort: 8125
+              hostPort: 8125
+              protocol: UDP
+          resources:
+            limits:
+              cpu: 200m
+              memory: 200Mi
+            requests:
+              cpu: 200m
+              memory: 200Mi
+          env:
+            - name: HOST_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            - name: HOST_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: K8S_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          volumeMounts:
+            - name: cwagentconfig
+              mountPath: /etc/cwagentconfig
+            - name: rootfs
+              mountPath: /rootfs
+              readOnly: true
+            - name: dockersock
+              mountPath: /var/run/docker.sock
+              readOnly: true
+            - name: varlibdocker
+              mountPath: /var/lib/docker
+              readOnly: true
+            - name: sys
+              mountPath: /sys
+              readOnly: true
+            - name: devdisk
+              mountPath: /dev/disk
+              readOnly: true
+      volumes:
+        - name: cwagentconfig
+          configMap:
+            name: cwagentconfig
+        - name: rootfs
+          hostPath:
+            path: /
+        - name: dockersock
+          hostPath:
+            path: /var/run/docker.sock
+        - name: varlibdocker
+          hostPath:
+            path: /var/lib/docker
+        - name: sys
+          hostPath:
+            path: /sys
+        - name: devdisk
+          hostPath:
+            path: /dev/disk/
+      terminationGracePeriodSeconds: 60
+      serviceAccountName: cloudwatch-agent
