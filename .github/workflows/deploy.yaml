@@ -13,6 +13,8 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # Skip if commit contains [skip ci] to prevent infinite loops
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
 
     steps:
       - name: Checkout app code
@@ -85,5 +87,5 @@ jobs:
           sed -i "s|repository: .*|repository: $IMAGE_NAME:$TAG|" $MANIFEST_FILE
 
           git add $MANIFEST_FILE
-          git diff --cached --quiet && echo "No changes to commit" || git commit -m "Update $ENV image to $TAG"
+          git diff --cached --quiet && echo "No changes to commit" || git commit -m "Update $ENV image to $TAG [skip ci]"
           git push origin main
